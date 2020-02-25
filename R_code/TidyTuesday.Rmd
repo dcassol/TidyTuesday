@@ -142,7 +142,7 @@ g
 g1 <- g + transition_time(year)+
   shadow_mark() + enter_recolor()
 animate(g1, renderer = gifski_renderer(), height = 800, width = 1000, fps = 10)
-anim_save("nations.gif")
+anim_save("g1_plot.gif")
 ```
 
 # Version Information
