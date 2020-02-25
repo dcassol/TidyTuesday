@@ -73,6 +73,19 @@ tuesdata <- tidytuesdayR::tt_load(2020, week = 6)
 attendance <- tuesdata$attendance
 ```
 
+## Looking the data
+
+```{r}
+attendance
+colnames(attendance)
+unique(attendance$team)
+unique(attendance$year)
+any(is.na(attendance$weekly_attendance))
+```
+
+
+Code based on [link](https://duvancho321.github.io/Tidyuesday/Folder/2020/2020-02-04/)
+
 ```{r, gganimate}
 top <- attendance %>% 
   filter(!is.na(weekly_attendance)) %>% 
@@ -129,6 +142,7 @@ g
 g1 <- g + transition_time(year)+
   shadow_mark() + enter_recolor()
 animate(g1, renderer = gifski_renderer(), height = 800, width = 1000, fps = 10)
+anim_save("nations.gif")
 ```
 
 # Version Information
