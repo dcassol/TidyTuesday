@@ -22,6 +22,8 @@ library(RCurl)
 library(cowplot)
 library(ggimage)
 library(extrafont)
+font_import()
+#loadfonts(device = "win")
 ```
 
 
