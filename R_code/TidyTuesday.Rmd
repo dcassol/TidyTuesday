@@ -32,8 +32,12 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, echo=FALSE, messages=FALSE, warnings=FALSE, eval=TRUE}
+pkg <- c("devtools", "tidytuesdayR", "tidyverse", "paletteer", "grDevices", "gganimate", "dplyr", "gifski")
+# for(i in seq_along(pkg)){
+#   if(!requireNamespace(pkg[i], quietly=TRUE))
+#     install.packages(pkg[i])
+# }
 suppressPackageStartupMessages({
-  library(tidytuesdayR)
   library(tidyverse)
   library(paletteer)
   library(grDevices)
@@ -41,8 +45,6 @@ suppressPackageStartupMessages({
   library(magrittr)
   library(dplyr) 
   library(gifski)
-
-  
 })
 ```
 
@@ -123,10 +125,10 @@ g <-   ggplot(df,aes(x=year,y = as.factor(week))) +
                                    colour = "grey76")) 
 g
 ```
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 g1 <- g + transition_time(year)+
   shadow_mark() + enter_recolor()
-animate(g1, renderer = gifski_renderer(),height = 800, width = 1000,fps = 10)
+animate(g1, renderer = gifski_renderer(), height = 800, width = 1000, fps = 10)
 ```
 
 # Version Information
