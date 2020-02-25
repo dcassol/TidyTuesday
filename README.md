@@ -28,7 +28,7 @@ We welcome all newcomers, enthusiasts, and experts to participate, but be mindfu
 
 ***
 
-## This Repo
+# This Repo
 
 A Repo for my contributions to the [#TidyTuesdays](https://github.com/rfordatascience/tidytuesday) challenge and all the resources I find in the way!
 
