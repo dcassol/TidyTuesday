@@ -26,6 +26,8 @@ font_import()
 #loadfonts(device = "win")
 ```
 
+## Code
+[link](https://raw.githubusercontent.com/symplyelah/Tidytuesday/master/2020/NFL/NFL.Rmd)
 
 ## Data
 
