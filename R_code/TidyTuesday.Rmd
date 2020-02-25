@@ -11,6 +11,8 @@ vignette: |
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 fontsize: 14pt
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{css, echo=FALSE}
@@ -32,7 +34,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, echo=FALSE, messages=FALSE, warnings=FALSE, eval=TRUE}
-pkg <- c("devtools", "tidytuesdayR", "tidyverse", "paletteer", "grDevices", "gganimate", "dplyr", "gifski")
+# pkg <- c("devtools", "tidytuesdayR", "tidyverse", "paletteer", "grDevices", "gganimate", "dplyr", "gifski", "extrafont")
 # for(i in seq_along(pkg)){
 #   if(!requireNamespace(pkg[i], quietly=TRUE))
 #     install.packages(pkg[i])
@@ -45,6 +47,7 @@ suppressPackageStartupMessages({
   library(magrittr)
   library(dplyr) 
   library(gifski)
+  library(extrafont)
 })
 ```
 
@@ -53,13 +56,15 @@ suppressPackageStartupMessages({
 ## DataSet
 
 ### Download the data: Option 1
+
 ```{r, downloadData, eval=TRUE}
 attendance <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-04/attendance.csv')
 standings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-04/standings.csv')
 games <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-04/games.csv')
 ```
 
-### Get the data through the package
+### Get the data through the package: Option 2
+
 ```{r, downloadData2, eval=FALSE}
 # Install pkg by devtools
 devtools::install_github("thebioengineer/tidytuesdayR")
@@ -73,14 +78,85 @@ tuesdata <- tidytuesdayR::tt_load(2020, week = 6)
 attendance <- tuesdata$attendance
 ```
 
-## Looking the data
+### Getting data locally: Option 3
+
+Check out path and change if necessary
 
 ```{r}
+getwd()
+#setwd("./TidyTuesday/")
+dir()
+```
+
+Load Data:
+
+```{r, loadData, eval=FALSE}
+attendance <- read.csv(file = "../data/2020/2020-02-04/attendance.csv")
+standings <- read.csv(file = "../data/2020/2020-02-04/standings.csv")
+games <- read.csv(file = "../data/2020/2020-02-04/games.csv")
+```
+
+## Looking the data
+
+```{r, eval=TRUE}
 attendance
+dim(attendance)
 colnames(attendance)
 unique(attendance$team)
+summary(attendance$team)
 unique(attendance$year)
+summary(attendance$year)
 any(is.na(attendance$weekly_attendance))
+str(attendance)
+```
+
+## Combine tables
+```{r}
+combine <- attendance %>% left_join(standings, by = c("team", "team_name", "year"))
+```
+
+## Add a column 
+```{r}
+combine <- combine %>% mutate(full_name = paste(team, team_name, sep = "_"))
+```
+
+## Removing a column and row
+```{r}
+col_remove <- names(combine) %in% c("full_name")
+combine[,!col_remove]
+
+row_remove <- combine$team %in% "Arizona"
+combine[!row_remove,]
+```
+
+## Filter the data
+
+```{r}
+combine <- combine %>% group_by(full_name, year) %>% mutate(avg_home_att = round(mean(home / 8), 0)) %>% ungroup()
+
+att_home <- combine %>% select(full_name, year, avg_home_att, playoffs) %>% distinct() 
+
+att_home_summary <- att_home %>% group_by(full_name, playoffs) %>% mutate(avg_home_att_poff = round(mean(avg_home_att), 0)) %>% ungroup() %>% select(full_name, playoffs, avg_home_att_poff) %>% distinct() 
+```
+
+
+## 2019 NFL pts_win and pts_loss Comparison (Home team
+```{r}
+library(RColorBrewer)
+n <- length(unique(games$home_team))
+qual_col_pals <-  brewer.pal.info[brewer.pal.info$category == 'qual',]
+nflcol <-  unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+#pie(rep(1,n), col=sample(nflcol, n))
+
+plotdat <- games %>% filter(year == 2019) %>%
+  group_by(home_team_name) %>%
+  summarise(pts_win = mean(pts_win, na.rm = TRUE), pts_loss = mean(pts_loss, na.rm = TRUE)) %>%
+  arrange(pts_win) %>%
+  mutate(home_team_name = factor(home_team_name, levels = .$home_team_name))
+
+ggplot(plotdat, aes(x = pts_win, y = pts_loss, col = home_team_name, label = home_team_name)) + geom_text(size =3) +   scale_color_manual(values = nflcol) +
+  guides(col = FALSE) + theme_light() +
+  labs(x = "Mean pts_win", y = "Mean pts_loss", title = "2019 NFL pts_win and pts_loss Comparison (Home team)")
 ```
 
 
@@ -145,7 +221,7 @@ animate(g1, renderer = gifski_renderer(), height = 800, width = 1000, fps = 10)
 anim_save("g1_plot.gif")
 ```
 
-![]("g1_plot.gif")
+![](g1_plot.gif)
 
 # Version Information
 
